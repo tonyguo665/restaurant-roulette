@@ -1,82 +1,78 @@
-import React, {useState, useEffect} from 'react';
-
-import './App.css';
+import React, { useState, useEffect } from "react";
+import NavBar from "./components/nav-bar/NavBar.js";
+import RestaurantList from "./components/restaurant-list/RestaurantList.js";
+import Map from "./components/Map.js";
+import CurrentRestaurant from "./components/CurrentRestaurant.js";
+import initialData from "./init.js"
+import axios from "axios";
+import "./App.css";
 
 function App() {
-  const [restaurantList, setRestaurantList] = useState([]);
-  const [currentRestaurant, setCurrentRestaurant] = useState({});
-  const [currentLocation, setCurrentLocation] = useState({});
 
-  useEffect(()=>{
+  const [restaurantList, setRestaurantList] = useState([]);
+  const [currentRest, setCurrentRest] = useState(initialData.initCurrRest);
+  const [currentLocation, setCurrentLocation] = useState(initialData.initCoords);
+
+  useEffect(() => {
     var options = {
       enableHighAccuracy: false,
       timeout: 5000,
       maximumAge: 5000
     };
+    navigator.geolocation.getCurrentPosition(
+      (results) => {
+        setCurrentLocation(results);
+      },
+      (err) => {
+        console.log("Current browser does not support geotaging!", err);
+      },
+      options
+    );
+  }, []);
 
-    navigator.geolocation.getCurrentPosition((results)=>{
-      setCurrentLocation(results);
-      console.log(results);
-    },(err)=>{
-      console.log('Current browser does not support geotag!',err)
-    },options)
-  },[])
+  useEffect(() => {
+    axios
+      .get(
+        `http://${process.env.REACT_APP_SERVER_IP}:3001`,
+        {
+          params: {
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude,
+            categories: "food,restaurants",
+          }
+        }
+      )
+      .then((results) => {
+        setRestaurantList(results.data);
+      })
+      .catch((err)=>{
+        console.log(err);
+      });
+  }, [currentLocation]);
+  useEffect(() => {
+    setCurrentRest(restaurantList[0]);
+  }, [restaurantList]);
+
+  const randomizeRestaurant = () =>{
+    let randomNum = Math.floor(Math.random() * (restaurantList.length));
+    setCurrentRest(restaurantList[randomNum]);
+  }
   return (
     <div className="App">
-      
+      <NavBar setRestaurantList={setRestaurantList} currentLocation={currentLocation} />
+      <div className="container is-fluid">
+        <div className="columns">
+          <div className="column is-three-fifths">
+            <CurrentRestaurant currentRest={currentRest} randomizeRestaurant={randomizeRestaurant}/>
+            <Map currentRest={currentRest} currentLocation={currentLocation}/>
+          </div>
+          <div className="column is-two-fifths">
+            <RestaurantList restaurantList={restaurantList} setCurrentRest={setCurrentRest}/>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default App;
-
-
-/* example data from yelp
-{
-  "total": 8228,
-  "businesses": [
-    {
-      "rating": 4,
-      "price": "$",
-      "phone": "+14152520800",
-      "id": "E8RJkjfdcwgtyoPMjQ_Olg",
-      "alias": "four-barrel-coffee-san-francisco",
-      "is_closed": false,
-      "categories": [
-        {
-          "alias": "coffee",
-          "title": "Coffee & Tea"
-        }
-      ],
-      "review_count": 1738,
-      "name": "Four Barrel Coffee",
-      "url": "https://www.yelp.com/biz/four-barrel-coffee-san-francisco",
-      "coordinates": {
-        "latitude": 37.7670169511878,
-        "longitude": -122.42184275
-      },
-      "image_url": "http://s3-media2.fl.yelpcdn.com/bphoto/MmgtASP3l_t4tPCL1iAsCg/o.jpg",
-      "location": {
-        "city": "San Francisco",
-        "country": "US",
-        "address2": "",
-        "address3": "",
-        "state": "CA",
-        "address1": "375 Valencia St",
-        "zip_code": "94103"
-      },
-      "distance": 1604.23,
-      "transactions": ["pickup", "delivery"]
-    },
-    // ...
-  ],
-  "region": {
-    "center": {
-      "latitude": 37.767413217936834,
-      "longitude": -122.42820739746094
-    }
-  }
-}
-
-
-*/

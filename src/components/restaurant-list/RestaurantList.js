@@ -1,10 +1,16 @@
-import React from 'react';
+import React from "react";
+import RestaurantListEntry from "./RestaurantListEntry.js";
 
-function RestaurantList() {
-  
+function RestaurantList(props) {
   return (
-    <div className="RestaurantList">
-    
+    <div className="container" style={{ overflow: "auto", height: "90vh" }}>
+      {props.restaurantList.map((restaurant, i) => {
+        return (
+          <div key={i}>
+            <RestaurantListEntry restaurant={restaurant} setCurrentRest={props.setCurrentRest}/>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -33,7 +33,7 @@ function App() {
   useEffect(() => {
     axios
       .get(
-        `${"http://localhost:3000"}`,
+        `http://${process.env.REACT_APP_SERVER_IP}:3001`,
         {
           params: {
             latitude: currentLocation.coords.latitude,
@@ -44,6 +44,9 @@ function App() {
       )
       .then((results) => {
         setRestaurantList(results.data);
+      })
+      .catch((err)=>{
+        console.log(err);
       });
   }, [currentLocation]);
   useEffect(() => {

@@ -19,7 +19,7 @@ function NavBar(props) {
   const submitHandle = (e) => {
     e.preventDefault();
     axios.get(
-      "http://localhost:3000",
+      `http://${process.env.REACT_APP_SERVER_IP}:3001`,
       {
         params: {
           latitude: props.currentLocation.coords.latitude,

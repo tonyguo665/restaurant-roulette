@@ -2,6 +2,8 @@
 
 Single page application that selects a restaurant based on user location and preferences. This application uses the Google maps API, Yelp API and the HTML5 navigator API. To start up the application you must provide API keys for both Google Cloud and Yelp. 
 
+The server ip must be provided under the environment variable: `REACT_APP_SERVER_IP` (`"http://localhost:3000"`)
+
 The server MUST be set up prior to starting the client application located at: [Restaurant Roulette-server](https://github.com/tonyguo665/restaurant-roulette-server).
 
 ## Getting Started
